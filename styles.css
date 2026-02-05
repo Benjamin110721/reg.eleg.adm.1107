@@ -19,7 +19,7 @@ h2 {
 .lista {
   background: white;
   padding: 15px;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-bottom: 15px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
@@ -66,10 +66,7 @@ button:hover {
 
 .puesto-title {
   font-weight: 600;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  margin-bottom: 5px;
 }
 
 table {
@@ -103,43 +100,29 @@ tr:hover {
   display: none;
 }
 
-/* MODAL */
+/* Modal */
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .modal-content {
   background: white;
   padding: 20px;
-  border-radius: 14px;
-  width: 420px;
-  max-width: 92%;
-  animation: pop 0.2s ease;
-}
-
-.modal-content h3 {
-  margin-top: 0;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
 }
 
 .modal-content ul {
   padding-left: 18px;
-  margin: 10px 0 15px;
 }
 
-.modal-content li {
-  margin-bottom: 6px;
-}
-
-@keyframes pop {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
 
 
