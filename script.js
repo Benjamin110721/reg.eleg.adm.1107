@@ -2,8 +2,8 @@ let personas = JSON.parse(localStorage.getItem("personas")) || [];
 
 const formulario = document.getElementById("formulario");
 const tipoSelect = document.getElementById("tipo");
-const fechasFuncionario = document.getElementById("fechas-funcionario");
-const fechaOferenteBox = document.getElementById("fecha-oferente");
+const fechasFuncionario = document.getElementById("fechasFuncionario");
+const fechaOferenteBox = document.getElementById("fechaOferenteBox");
 
 const buscarNombre = document.getElementById("buscarNombre");
 const buscarPuesto = document.getElementById("buscarPuesto");
@@ -18,9 +18,11 @@ const historialLista = document.getElementById("historialLista");
 const cerrarModalBtn = document.getElementById("cerrarModal");
 
 /* -----------------------------
-   FORZAR MODAL CERRADO AL INICIAR
+   INIT
 ----------------------------- */
+
 modal.classList.add("hidden");
+render();
 
 /* -----------------------------
    FORMULARIO
@@ -36,7 +38,7 @@ tipoSelect.addEventListener("change", () => {
   }
 });
 
-formulario.addEventListener("submit", (e) => {
+formulario.addEventListener("submit", e => {
   e.preventDefault();
 
   const nombre = document.getElementById("nombre").value.trim();
@@ -45,13 +47,11 @@ formulario.addEventListener("submit", (e) => {
 
   if (!nombre || !puesto || !tipo) return;
 
-  let persona = personas.find(
-    p => p.nombre === nombre && p.puesto === puesto && p.tipo === tipo
-  );
+  let persona = personas.find(p => p.nombre === nombre && p.puesto === puesto && p.tipo === tipo);
 
   if (!persona) {
     persona = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       nombre,
       puesto,
       tipo,
@@ -78,7 +78,7 @@ formulario.addEventListener("submit", (e) => {
     persona.historial.push({ fecha: fechaOferente });
   }
 
-  guardarYMostrar();
+  guardar();
   formulario.reset();
   fechaOferenteBox.classList.add("hidden");
   fechasFuncionario.classList.remove("hidden");
@@ -88,40 +88,19 @@ formulario.addEventListener("submit", (e) => {
    FILTROS
 ----------------------------- */
 
-buscarNombre.addEventListener("input", mostrarTodo);
-buscarPuesto.addEventListener("input", mostrarTodo);
+buscarNombre.addEventListener("input", render);
+buscarPuesto.addEventListener("input", render);
 limpiarFiltrosBtn.addEventListener("click", () => {
   buscarNombre.value = "";
   buscarPuesto.value = "";
-  mostrarTodo();
+  render();
 });
 
 /* -----------------------------
-   UTILIDADES
+   RENDER
 ----------------------------- */
 
-function calcularDias(inicio, fin) {
-  const d1 = new Date(inicio);
-  const d2 = new Date(fin);
-  return Math.floor((d2 - d1) / 86400000) + 1;
-}
-
-function diasDesde(fecha) {
-  const f = new Date(fecha);
-  const hoy = new Date();
-  return Math.floor((hoy - f) / 86400000);
-}
-
-function guardarYMostrar() {
-  localStorage.setItem("personas", JSON.stringify(personas));
-  mostrarTodo();
-}
-
-/* -----------------------------
-   RENDER GENERAL
------------------------------ */
-
-function mostrarTodo() {
+function render() {
   mostrarFuncionarios();
   mostrarOferentes();
 }
@@ -133,14 +112,14 @@ function mostrarTodo() {
 function mostrarFuncionarios() {
   funcionariosContainer.innerHTML = "";
 
-  const textoNombre = buscarNombre.value.toLowerCase();
-  const textoPuesto = buscarPuesto.value.toLowerCase();
+  const nombreFiltro = buscarNombre.value.toLowerCase();
+  const puestoFiltro = buscarPuesto.value.toLowerCase();
 
   const funcionarios = personas
     .filter(p => p.tipo === "Funcionario")
     .filter(p =>
-      p.nombre.toLowerCase().includes(textoNombre) &&
-      p.puesto.toLowerCase().includes(textoPuesto)
+      p.nombre.toLowerCase().includes(nombreFiltro) &&
+      p.puesto.toLowerCase().includes(puestoFiltro)
     );
 
   const porPuesto = agruparPor(funcionarios, "puesto");
@@ -178,9 +157,7 @@ function mostrarFuncionarios() {
     funcionariosContainer.appendChild(card);
   });
 
-  document.querySelectorAll(".action-link").forEach(el => {
-    el.addEventListener("click", () => verHistorial(el.dataset.id));
-  });
+  conectarHistorialLinks();
 }
 
 /* -----------------------------
@@ -190,14 +167,14 @@ function mostrarFuncionarios() {
 function mostrarOferentes() {
   oferentesContainer.innerHTML = "";
 
-  const textoNombre = buscarNombre.value.toLowerCase();
-  const textoPuesto = buscarPuesto.value.toLowerCase();
+  const nombreFiltro = buscarNombre.value.toLowerCase();
+  const puestoFiltro = buscarPuesto.value.toLowerCase();
 
   const oferentes = personas
     .filter(p => p.tipo === "Oferente")
     .filter(p =>
-      p.nombre.toLowerCase().includes(textoNombre) &&
-      p.puesto.toLowerCase().includes(textoPuesto)
+      p.nombre.toLowerCase().includes(nombreFiltro) &&
+      p.puesto.toLowerCase().includes(puestoFiltro)
     );
 
   const porPuesto = agruparPor(oferentes, "puesto");
@@ -237,14 +214,18 @@ function mostrarOferentes() {
     oferentesContainer.appendChild(card);
   });
 
-  document.querySelectorAll(".action-link").forEach(el => {
-    el.addEventListener("click", () => verHistorial(el.dataset.id));
-  });
+  conectarHistorialLinks();
 }
 
 /* -----------------------------
    HISTORIAL
 ----------------------------- */
+
+function conectarHistorialLinks() {
+  document.querySelectorAll(".action-link").forEach(el => {
+    el.onclick = () => verHistorial(el.dataset.id);
+  });
+}
 
 function verHistorial(id) {
   const persona = personas.find(p => p.id === id);
@@ -253,18 +234,14 @@ function verHistorial(id) {
   historialNombre.textContent = `Historial — ${persona.nombre} (${persona.puesto})`;
   historialLista.innerHTML = "";
 
-  if (!persona.historial || persona.historial.length === 0) {
+  if (persona.historial.length === 0) {
     historialLista.innerHTML = "<li><em>No hay registros.</em></li>";
   } else {
     persona.historial.forEach(h => {
       if (persona.tipo === "Funcionario") {
-        historialLista.innerHTML += `
-          <li>📅 ${h.inicio} → ${h.fin} (${h.dias} días)</li>
-        `;
+        historialLista.innerHTML += `<li>📅 ${h.inicio} → ${h.fin} (${h.dias} días)</li>`;
       } else {
-        historialLista.innerHTML += `
-          <li>🗂️ Incluido como oferente: ${h.fecha}</li>
-        `;
+        historialLista.innerHTML += `<li>🗂️ Incluido como oferente: ${h.fecha}</li>`;
       }
     });
   }
@@ -272,13 +249,34 @@ function verHistorial(id) {
   modal.classList.remove("hidden");
 }
 
-cerrarModalBtn.addEventListener("click", () => {
+cerrarModalBtn.onclick = () => {
   modal.classList.add("hidden");
-});
+};
+
+/* -----------------------------
+   STORAGE
+----------------------------- */
+
+function guardar() {
+  localStorage.setItem("personas", JSON.stringify(personas));
+  render();
+}
 
 /* -----------------------------
    HELPERS
 ----------------------------- */
+
+function calcularDias(inicio, fin) {
+  const d1 = new Date(inicio);
+  const d2 = new Date(fin);
+  return Math.floor((d2 - d1) / 86400000) + 1;
+}
+
+function diasDesde(fecha) {
+  const f = new Date(fecha);
+  const hoy = new Date();
+  return Math.floor((hoy - f) / 86400000);
+}
 
 function agruparPor(arr, clave) {
   return arr.reduce((acc, obj) => {
@@ -288,9 +286,4 @@ function agruparPor(arr, clave) {
   }, {});
 }
 
-/* -----------------------------
-   INIT
------------------------------ */
-
-mostrarTodo();
 
