@@ -15,6 +15,7 @@ const oferentesContainer = document.getElementById("oferentesContainer");
 const modal = document.getElementById("modalHistorial");
 const historialNombre = document.getElementById("historialNombre");
 const historialLista = document.getElementById("historialLista");
+const cerrarModalBtn = document.getElementById("cerrarModal");
 
 /* -----------------------------
    FORMULARIO
@@ -33,8 +34,8 @@ tipoSelect.addEventListener("change", () => {
 formulario.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const nombre = nombreInput().value.trim();
-  const puesto = puestoInput().value.trim();
+  const nombre = document.getElementById("nombre").value.trim();
+  const puesto = document.getElementById("puesto").value.trim();
   const tipo = tipoSelect.value;
 
   if (!nombre || !puesto || !tipo) return;
@@ -63,13 +64,13 @@ formulario.addEventListener("submit", (e) => {
 
     const dias = calcularDias(inicio, fin);
     persona.totalDias += dias;
-    persona.historial.push({ inicio, fin, dias });
+    persona.historial.push({ tipo: "funcionario", inicio, fin, dias });
   } else {
     const fechaOferente = document.getElementById("fechaOferente").value;
     if (!fechaOferente) return;
 
     persona.fechaIngreso = fechaOferente;
-    persona.historial.push({ fecha: fechaOferente });
+    persona.historial.push({ tipo: "oferente", fecha: fechaOferente });
   }
 
   guardarYMostrar();
@@ -93,13 +94,6 @@ limpiarFiltrosBtn.addEventListener("click", () => {
 /* -----------------------------
    UTILIDADES
 ----------------------------- */
-
-function nombreInput() {
-  return document.getElementById("nombre");
-}
-function puestoInput() {
-  return document.getElementById("puesto");
-}
 
 function calcularDias(inicio, fin) {
   const d1 = new Date(inicio);
@@ -169,7 +163,7 @@ function mostrarFuncionarios() {
               <td>${i + 1}</td>
               <td>${p.nombre}</td>
               <td><strong>${p.totalDias}</strong></td>
-              <td><span class="action-link" onclick="verHistorial('${p.id}')">Ver</span></td>
+              <td><span class="action-link" data-id="${p.id}">Ver</span></td>
             </tr>
           `).join("")}
         </tbody>
@@ -178,6 +172,8 @@ function mostrarFuncionarios() {
 
     funcionariosContainer.appendChild(card);
   });
+
+  activarLinksHistorial();
 }
 
 /* -----------------------------
@@ -224,7 +220,7 @@ function mostrarOferentes() {
               <td>${i + 1}</td>
               <td>${p.nombre}</td>
               <td><strong>${diasDesde(p.fechaIngreso)}</strong></td>
-              <td><span class="action-link" onclick="verHistorial('${p.id}')">Ver</span></td>
+              <td><span class="action-link" data-id="${p.id}">Ver</span></td>
             </tr>
           `).join("")}
         </tbody>
@@ -233,33 +229,49 @@ function mostrarOferentes() {
 
     oferentesContainer.appendChild(card);
   });
+
+  activarLinksHistorial();
 }
 
 /* -----------------------------
    HISTORIAL MODAL
 ----------------------------- */
 
+function activarLinksHistorial() {
+  document.querySelectorAll(".action-link").forEach(link => {
+    link.addEventListener("click", () => {
+      const id = link.dataset.id;
+      verHistorial(id);
+    });
+  });
+}
+
 function verHistorial(id) {
   const persona = personas.find(p => p.id === id);
   if (!persona) return;
 
-  historialNombre.textContent = `Historial — ${persona.nombre} (${persona.puesto})`;
+  historialNombre.textContent = `${persona.nombre} — ${persona.puesto}`;
   historialLista.innerHTML = "";
 
   if (persona.historial.length === 0) {
-    historialLista.innerHTML = "<li>No hay registros.</li>";
+    historialLista.innerHTML = "<li>No hay registros aún.</li>";
   } else {
     persona.historial.forEach(h => {
-      if (persona.tipo === "Funcionario") {
+      if (h.tipo === "funcionario") {
         historialLista.innerHTML += `<li>${h.inicio} → ${h.fin} (${h.dias} días)</li>`;
       } else {
-        historialLista.innerHTML += `<li>Incluido como oferente: ${h.fecha}</li>`;
+        historialLista.innerHTML += `<li>Incluido como oferente el ${h.fecha}</li>`;
       }
     });
   }
 
   modal.classList.remove("hidden");
 }
+
+cerrarModalBtn.addEventListener("click", cerrarHistorial);
+modal.addEventListener("click", e => {
+  if (e.target === modal) cerrarHistorial();
+});
 
 function cerrarHistorial() {
   modal.classList.add("hidden");
