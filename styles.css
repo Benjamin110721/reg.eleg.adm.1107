@@ -1,41 +1,46 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: system-ui, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-  padding: 20px;
-  color: #222;
+  font-family: Inter, system-ui, Arial, sans-serif;
+  background: #f6f7fb;
+  padding: 24px;
+  color: #1f2937;
 }
 
 h1 {
+  margin-bottom: 16px;
+}
+
+h3 {
   margin-bottom: 10px;
 }
 
-h2 {
-  margin: 10px 0;
-}
-
-.form-card,
-.filters-card,
-.lista {
+.card {
   background: white;
-  padding: 15px;
   border-radius: 10px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
 }
 
 form {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 10px;
 }
 
-input,
-select,
-button {
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+input, select, button {
   padding: 8px 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid #d1d5db;
   font-size: 14px;
 }
 
@@ -44,68 +49,58 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  font-weight: 500;
 }
 
 button:hover {
   background: #1d4ed8;
 }
 
-.filters-card input {
-  margin-right: 5px;
-}
-
-.listas {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.puesto-card {
-  margin-top: 12px;
-}
-
-.puesto-title {
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #fafafa;
+  margin-top: 8px;
+  font-size: 14px;
 }
 
-th,
-td {
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
+th, td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 th {
-  background: #eef2ff;
+  background: #f3f4f6;
+  text-align: left;
 }
 
 tr:hover {
-  background: #f1f5f9;
+  background: #f9fafb;
 }
 
-.action-link {
+.actions button {
+  background: none;
   color: #2563eb;
+  border: none;
   cursor: pointer;
-  text-decoration: underline;
+  font-size: 14px;
+  margin-right: 6px;
 }
 
-.hidden {
-  display: none;
+.actions button.delete {
+  color: #dc2626;
 }
 
-/* Modal */
+.vacio {
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 8px;
+}
 
+/* MODAL */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,14 +109,15 @@ tr:hover {
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 400px;
-  max-width: 90%;
+  border-radius: 10px;
+  padding: 16px;
+  width: min(700px, 95%);
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
-.modal-content ul {
-  padding-left: 18px;
+.oculto {
+  display: none;
 }
 
 
