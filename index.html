@@ -1,43 +1,72 @@
-    <!-- FUNCIONARIO -->
-    <input type="date" id="inicio" class="campo-funcionario" required>
-    <input type="date" id="fin" class="campo-funcionario" required>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Elegibles - Administración</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
 
-    <!-- OFERENTE -->
-    <input type="date" id="fechaInclusion" class="campo-oferente oculto" required>
+<h1>📋 Lista de Elegibles - Administración</h1>
+
+<section class="form-card">
+  <h2>➕ Registrar nombramiento</h2>
+  <form id="formulario">
+    <input type="text" id="nombre" placeholder="Nombre completo" required />
+    <input type="text" id="puesto" placeholder="Puesto" required />
+
+    <select id="tipo" required>
+      <option value="">Seleccione tipo</option>
+      <option value="Funcionario">Funcionario</option>
+      <option value="Oferente">Oferente</option>
+    </select>
+
+    <div id="fechas-funcionario">
+      <label>Inicio</label>
+      <input type="date" id="inicio" />
+      <label>Fin</label>
+      <input type="date" id="fin" />
+    </div>
+
+    <div id="fecha-oferente" class="hidden">
+      <label>Fecha de inclusión como oferente</label>
+      <input type="date" id="fechaOferente" />
+    </div>
 
     <button type="submit">Guardar</button>
   </form>
 </section>
 
-<section class="card">
-  <h3>🔎 Filtros</h3>
-  <div class="filters">
-    <input type="text" id="buscarNombre" placeholder="Buscar nombre">
-    <input type="text" id="buscarPuesto" placeholder="Buscar puesto">
-    <button id="limpiarFiltros">Limpiar</button>
+<section class="filters-card">
+  <h2>🔎 Filtros</h2>
+  <input type="text" id="buscarNombre" placeholder="Buscar nombre" />
+  <input type="text" id="buscarPuesto" placeholder="Buscar puesto" />
+  <button id="limpiarFiltros">Limpiar</button>
+</section>
+
+<section class="listas">
+
+  <div class="lista">
+    <h2>👨‍💼 Funcionarios</h2>
+    <div id="funcionariosContainer"></div>
   </div>
+
+  <div class="lista">
+    <h2>🧑‍💼 Oferentes</h2>
+    <div id="oferentesContainer"></div>
+  </div>
+
 </section>
 
-<section class="card">
-  <h3>👨‍💼 Funcionarios</h3>
-  <div id="contenedorFuncionarios"></div>
-</section>
-
-<section class="card">
-  <h3>🧑‍💼 Oferentes</h3>
-  <div id="contenedorOferentes"></div>
-</section>
-
-<!-- MODAL HISTORIAL -->
-<div id="modalHistorial" class="modal oculto">
+<!-- Modal Historial -->
+<div id="modalHistorial" class="modal hidden">
   <div class="modal-content">
-    <h3 id="tituloHistorial"></h3>
-    <table>
-      <thead>
-        <tr id="theadHistorial"></tr>
-      </thead>
-      <tbody id="tablaHistorial"></tbody>
-    </table>
-    <button id="cerrarModal">Cerrar</button>
+    <h3 id="historialNombre"></h3>
+    <ul id="historialLista"></ul>
+    <button onclick="cerrarHistorial()">Cerrar</button>
   </div>
 </div>
+
+</body>
+</html>
