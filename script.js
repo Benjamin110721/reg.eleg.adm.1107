@@ -46,7 +46,7 @@ formulario.addEventListener("submit", (e) => {
 
   if (!persona) {
     persona = {
-      id: crypto.randomUUID(),
+      id: Date.now().toString(),
       nombre,
       puesto,
       tipo,
@@ -64,13 +64,13 @@ formulario.addEventListener("submit", (e) => {
 
     const dias = calcularDias(inicio, fin);
     persona.totalDias += dias;
-    persona.historial.push({ tipo: "funcionario", inicio, fin, dias });
+    persona.historial.push({ inicio, fin, dias });
   } else {
     const fechaOferente = document.getElementById("fechaOferente").value;
     if (!fechaOferente) return;
 
     persona.fechaIngreso = fechaOferente;
-    persona.historial.push({ tipo: "oferente", fecha: fechaOferente });
+    persona.historial.push({ fecha: fechaOferente });
   }
 
   guardarYMostrar();
@@ -173,7 +173,9 @@ function mostrarFuncionarios() {
     funcionariosContainer.appendChild(card);
   });
 
-  activarLinksHistorial();
+  document.querySelectorAll(".action-link").forEach(el => {
+    el.addEventListener("click", () => verHistorial(el.dataset.id));
+  });
 }
 
 /* -----------------------------
@@ -230,37 +232,34 @@ function mostrarOferentes() {
     oferentesContainer.appendChild(card);
   });
 
-  activarLinksHistorial();
+  document.querySelectorAll(".action-link").forEach(el => {
+    el.addEventListener("click", () => verHistorial(el.dataset.id));
+  });
 }
 
 /* -----------------------------
-   HISTORIAL MODAL
+   HISTORIAL
 ----------------------------- */
-
-function activarLinksHistorial() {
-  document.querySelectorAll(".action-link").forEach(link => {
-    link.addEventListener("click", () => {
-      const id = link.dataset.id;
-      verHistorial(id);
-    });
-  });
-}
 
 function verHistorial(id) {
   const persona = personas.find(p => p.id === id);
   if (!persona) return;
 
-  historialNombre.textContent = `${persona.nombre} — ${persona.puesto}`;
+  historialNombre.textContent = `Historial — ${persona.nombre} (${persona.puesto})`;
   historialLista.innerHTML = "";
 
-  if (persona.historial.length === 0) {
-    historialLista.innerHTML = "<li>No hay registros aún.</li>";
+  if (!persona.historial || persona.historial.length === 0) {
+    historialLista.innerHTML = "<li><em>No hay registros.</em></li>";
   } else {
     persona.historial.forEach(h => {
-      if (h.tipo === "funcionario") {
-        historialLista.innerHTML += `<li>${h.inicio} → ${h.fin} (${h.dias} días)</li>`;
+      if (persona.tipo === "Funcionario") {
+        historialLista.innerHTML += `
+          <li>📅 ${h.inicio} → ${h.fin} (${h.dias} días)</li>
+        `;
       } else {
-        historialLista.innerHTML += `<li>Incluido como oferente el ${h.fecha}</li>`;
+        historialLista.innerHTML += `
+          <li>🗂️ Incluido como oferente: ${h.fecha}</li>
+        `;
       }
     });
   }
@@ -268,21 +267,16 @@ function verHistorial(id) {
   modal.classList.remove("hidden");
 }
 
-cerrarModalBtn.addEventListener("click", cerrarHistorial);
-modal.addEventListener("click", e => {
-  if (e.target === modal) cerrarHistorial();
-});
-
-function cerrarHistorial() {
+cerrarModalBtn.addEventListener("click", () => {
   modal.classList.add("hidden");
-}
+});
 
 /* -----------------------------
    HELPERS
 ----------------------------- */
 
-function agruparPor(array, clave) {
-  return array.reduce((acc, obj) => {
+function agruparPor(arr, clave) {
+  return arr.reduce((acc, obj) => {
     acc[obj[clave]] = acc[obj[clave]] || [];
     acc[obj[clave]].push(obj);
     return acc;
@@ -294,3 +288,4 @@ function agruparPor(array, clave) {
 ----------------------------- */
 
 mostrarTodo();
+
