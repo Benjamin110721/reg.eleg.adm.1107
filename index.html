@@ -1,0 +1,43 @@
+    <!-- FUNCIONARIO -->
+    <input type="date" id="inicio" class="campo-funcionario" required>
+    <input type="date" id="fin" class="campo-funcionario" required>
+
+    <!-- OFERENTE -->
+    <input type="date" id="fechaInclusion" class="campo-oferente oculto" required>
+
+    <button type="submit">Guardar</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>🔎 Filtros</h3>
+  <div class="filters">
+    <input type="text" id="buscarNombre" placeholder="Buscar nombre">
+    <input type="text" id="buscarPuesto" placeholder="Buscar puesto">
+    <button id="limpiarFiltros">Limpiar</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>👨‍💼 Funcionarios</h3>
+  <div id="contenedorFuncionarios"></div>
+</section>
+
+<section class="card">
+  <h3>🧑‍💼 Oferentes</h3>
+  <div id="contenedorOferentes"></div>
+</section>
+
+<!-- MODAL HISTORIAL -->
+<div id="modalHistorial" class="modal oculto">
+  <div class="modal-content">
+    <h3 id="tituloHistorial"></h3>
+    <table>
+      <thead>
+        <tr id="theadHistorial"></tr>
+      </thead>
+      <tbody id="tablaHistorial"></tbody>
+    </table>
+    <button id="cerrarModal">Cerrar</button>
+  </div>
+</div>
