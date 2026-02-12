@@ -17,27 +17,21 @@ const historialNombre = document.getElementById("historialNombre");
 const historialLista = document.getElementById("historialLista");
 const cerrarModalBtn = document.getElementById("cerrarModal");
 
-/* -----------------------------
-   INIT
------------------------------ */
-
-modal.classList.add("hidden");
+/* INIT */
 render();
 
-/* -----------------------------
-   FORMULARIO
------------------------------ */
-
+/* CAMBIO TIPO */
 tipoSelect.addEventListener("change", () => {
   if (tipoSelect.value === "Oferente") {
-    fechasFuncionario.classList.add("hidden");
-    fechaOferenteBox.classList.remove("hidden");
+    fechasFuncionario.style.display = "none";
+    fechaOferenteBox.style.display = "block";
   } else {
-    fechasFuncionario.classList.remove("hidden");
-    fechaOferenteBox.classList.add("hidden");
+    fechasFuncionario.style.display = "block";
+    fechaOferenteBox.style.display = "none";
   }
 });
 
+/* GUARDAR */
 formulario.addEventListener("submit", e => {
   e.preventDefault();
 
@@ -47,7 +41,11 @@ formulario.addEventListener("submit", e => {
 
   if (!nombre || !puesto || !tipo) return;
 
-  let persona = personas.find(p => p.nombre === nombre && p.puesto === puesto && p.tipo === tipo);
+  let persona = personas.find(p => 
+    p.nombre === nombre && 
+    p.puesto === puesto && 
+    p.tipo === tipo
+  );
 
   if (!persona) {
     persona = {
@@ -80,35 +78,25 @@ formulario.addEventListener("submit", e => {
 
   guardar();
   formulario.reset();
-  fechaOferenteBox.classList.add("hidden");
-  fechasFuncionario.classList.remove("hidden");
 });
 
-/* -----------------------------
-   FILTROS
------------------------------ */
-
+/* FILTROS */
 buscarNombre.addEventListener("input", render);
 buscarPuesto.addEventListener("input", render);
+
 limpiarFiltrosBtn.addEventListener("click", () => {
   buscarNombre.value = "";
   buscarPuesto.value = "";
   render();
 });
 
-/* -----------------------------
-   RENDER
------------------------------ */
-
+/* RENDER */
 function render() {
   mostrarFuncionarios();
   mostrarOferentes();
 }
 
-/* -----------------------------
-   FUNCIONARIOS
------------------------------ */
-
+/* FUNCIONARIOS */
 function mostrarFuncionarios() {
   funcionariosContainer.innerHTML = "";
 
@@ -147,7 +135,7 @@ function mostrarFuncionarios() {
               <td>${i + 1}</td>
               <td>${p.nombre}</td>
               <td><strong>${p.totalDias}</strong></td>
-              <td><span class="action-link" data-id="${p.id}">Ver</span></td>
+              <td><span class="action-link" onclick="verHistorial('${p.id}')">Ver</span></td>
             </tr>
           `).join("")}
         </tbody>
@@ -156,14 +144,9 @@ function mostrarFuncionarios() {
 
     funcionariosContainer.appendChild(card);
   });
-
-  conectarHistorialLinks();
 }
 
-/* -----------------------------
-   OFERENTES
------------------------------ */
-
+/* OFERENTES */
 function mostrarOferentes() {
   oferentesContainer.innerHTML = "";
 
@@ -180,9 +163,7 @@ function mostrarOferentes() {
   const porPuesto = agruparPor(oferentes, "puesto");
 
   Object.keys(porPuesto).forEach(puesto => {
-    const lista = porPuesto[puesto].sort(
-      (a, b) => diasDesde(b.fechaIngreso) - diasDesde(a.fechaIngreso)
-    );
+    const lista = porPuesto[puesto];
 
     const card = document.createElement("div");
     card.className = "puesto-card";
@@ -194,7 +175,7 @@ function mostrarOferentes() {
           <tr>
             <th>#</th>
             <th>Nombre</th>
-            <th>Antigüedad (días)</th>
+            <th>Antigüedad</th>
             <th>Historial</th>
           </tr>
         </thead>
@@ -203,8 +184,8 @@ function mostrarOferentes() {
             <tr>
               <td>${i + 1}</td>
               <td>${p.nombre}</td>
-              <td><strong>${diasDesde(p.fechaIngreso)}</strong></td>
-              <td><span class="action-link" data-id="${p.id}">Ver</span></td>
+              <td>${diasDesde(p.fechaIngreso)}</td>
+              <td><span class="action-link" onclick="verHistorial('${p.id}')">Ver</span></td>
             </tr>
           `).join("")}
         </tbody>
@@ -213,20 +194,9 @@ function mostrarOferentes() {
 
     oferentesContainer.appendChild(card);
   });
-
-  conectarHistorialLinks();
 }
 
-/* -----------------------------
-   HISTORIAL
------------------------------ */
-
-function conectarHistorialLinks() {
-  document.querySelectorAll(".action-link").forEach(el => {
-    el.onclick = () => verHistorial(el.dataset.id);
-  });
-}
-
+/* HISTORIAL */
 function verHistorial(id) {
   const persona = personas.find(p => p.id === id);
   if (!persona) return;
@@ -234,38 +204,28 @@ function verHistorial(id) {
   historialNombre.textContent = `Historial — ${persona.nombre} (${persona.puesto})`;
   historialLista.innerHTML = "";
 
-  if (persona.historial.length === 0) {
-    historialLista.innerHTML = "<li><em>No hay registros.</em></li>";
-  } else {
-    persona.historial.forEach(h => {
-      if (persona.tipo === "Funcionario") {
-        historialLista.innerHTML += `<li>📅 ${h.inicio} → ${h.fin} (${h.dias} días)</li>`;
-      } else {
-        historialLista.innerHTML += `<li>🗂️ Incluido como oferente: ${h.fecha}</li>`;
-      }
-    });
-  }
+  persona.historial.forEach(h => {
+    if (persona.tipo === "Funcionario") {
+      historialLista.innerHTML += `<li>${h.inicio} → ${h.fin} (${h.dias} días)</li>`;
+    } else {
+      historialLista.innerHTML += `<li>Incluido: ${h.fecha}</li>`;
+    }
+  });
 
-  modal.classList.remove("hidden");
+  modal.classList.add("active");
 }
 
 cerrarModalBtn.onclick = () => {
-  modal.classList.add("hidden");
+  modal.classList.remove("active");
 };
 
-/* -----------------------------
-   STORAGE
------------------------------ */
-
+/* STORAGE */
 function guardar() {
   localStorage.setItem("personas", JSON.stringify(personas));
   render();
 }
 
-/* -----------------------------
-   HELPERS
------------------------------ */
-
+/* HELPERS */
 function calcularDias(inicio, fin) {
   const d1 = new Date(inicio);
   const d2 = new Date(fin);
@@ -273,6 +233,7 @@ function calcularDias(inicio, fin) {
 }
 
 function diasDesde(fecha) {
+  if (!fecha) return 0;
   const f = new Date(fecha);
   const hoy = new Date();
   return Math.floor((hoy - f) / 86400000);
