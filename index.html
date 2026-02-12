@@ -7,67 +7,83 @@
 </head>
 <body>
 
-  <h1>📋 Lista de Elegibles - Administración</h1>
+<h1>📋 Lista de Elegibles - Administración</h1>
 
-  <!-- REGISTRO -->
-  <section class="card">
-    <h2>➕ Registrar nombramiento</h2>
-    <form id="formulario">
-      <input type="text" id="nombre" placeholder="Nombre completo" required />
-      <input type="text" id="puesto" placeholder="Puesto" required />
+<!-- REGISTRO -->
+<section class="card">
+  <h2>➕ Registrar persona</h2>
+  <form id="formulario">
 
-      <select id="tipo" required>
-        <option value="">Seleccione tipo</option>
-        <option value="Funcionario">Funcionario</option>
-        <option value="Oferente">Oferente</option>
-      </select>
+    <input type="text" id="nombre" placeholder="Nombre completo" required />
+    <input type="text" id="cedula" placeholder="Cédula" required />
+    <input type="date" id="fechaServicio" required />
+    <input type="text" id="telefono" placeholder="Teléfono" />
+    <input type="email" id="correo" placeholder="Correo electrónico" />
 
-      <div id="fechasFuncionario">
-        <label>Inicio</label>
-        <input type="date" id="inicio" />
-        <label>Fin</label>
-        <input type="date" id="fin" />
-      </div>
+    <select id="puesto" required>
+      <option value="">Seleccione puesto</option>
+      <option>Asistente Mantenimiento</option>
+      <option>Asistente Tecnico Administración 4</option>
+      <option>Asistente Redes</option>
+      <option>Asistente Tecnico Administración 3</option>
+      <option>Asistente Tecnico Administración 2</option>
+      <option>Asistente Tecnico Administración 1</option>
+      <option>Oficinista 2</option>
+      <option>Oficinista 1</option>
+      <option>Tecnico Contabilidad y Finanzas 3 VFSM</option>
+      <option>Tecnico Contabilidad y Finanzas 3 ACT-CAJA CHICA</option>
+      <option>Jefe Proveeduría 1</option>
+      <option>Profesional 1 (Compras)</option>
+      <option>Supervisor Mantenimiento</option>
+      <option>Técnico Mantenimiento 1</option>
+      <option>Asistente TIC</option>
+      <option>Profesional 2 Servicios Generales</option>
+      <option>Chofer 1</option>
+      <option>Chofer 2</option>
+      <option>Profesional 2 Contabilidad y Finanzas</option>
+      <option>Asistente Gestión Recursos Humanos 2</option>
+      <option>Coordinador Recursos Humanos 1</option>
+    </select>
 
-      <div id="fechaOferenteBox" style="display:none;">
-        <label>Fecha inclusión</label>
-        <input type="date" id="fechaOferente" />
-      </div>
+    <select id="tipo" required>
+      <option value="">Seleccione tipo</option>
+      <option value="Funcionario">Funcionario</option>
+      <option value="Oferente">Oferente</option>
+    </select>
 
-      <button type="submit">Guardar</button>
-    </form>
-  </section>
-
-  <!-- FILTROS -->
-  <section class="card">
-    <h2>🔍 Filtros</h2>
-    <input type="text" id="buscarNombre" placeholder="Buscar nombre" />
-    <input type="text" id="buscarPuesto" placeholder="Buscar puesto" />
-    <button id="limpiarFiltros">Limpiar</button>
-  </section>
-
-  <!-- FUNCIONARIOS -->
-  <section class="card">
-    <h2>👨‍💼 Funcionarios</h2>
-    <div id="funcionariosContainer"></div>
-  </section>
-
-  <!-- OFERENTES -->
-  <section class="card">
-    <h2>🧑‍💼💼 Oferentes</h2>
-    <div id="oferentesContainer"></div>
-  </section>
-
-  <!-- MODAL -->
-  <div id="modalHistorial" class="modal">
-    <div class="modal-content">
-      <h3 id="historialNombre"></h3>
-      <ul id="historialLista"></ul>
-      <button id="cerrarModal">Cerrar</button>
+    <div id="fechasFuncionario">
+      <label>Inicio</label>
+      <input type="date" id="inicio" />
+      <label>Fin</label>
+      <input type="date" id="fin" />
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <div id="fechaOferenteBox" style="display:none;">
+      <label>Fecha inclusión</label>
+      <input type="date" id="fechaOferente" />
+    </div>
+
+    <button type="submit">Guardar</button>
+  </form>
+</section>
+
+<!-- PESTAÑAS -->
+<div id="tabs" class="tabs"></div>
+
+<section class="card">
+  <div id="listaContainer"></div>
+</section>
+
+<!-- MODAL -->
+<div id="modalHistorial" class="modal">
+  <div class="modal-content">
+    <h3 id="historialNombre"></h3>
+    <ul id="historialLista"></ul>
+    <button id="cerrarModal">Cerrar</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
 
