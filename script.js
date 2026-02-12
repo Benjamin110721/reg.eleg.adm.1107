@@ -1,26 +1,20 @@
 let personas = JSON.parse(localStorage.getItem("personas")) || [];
+let usuarioActual = "Administrador";
+let puestoActivo = null;
 
 const formulario = document.getElementById("formulario");
 const tipoSelect = document.getElementById("tipo");
 const fechasFuncionario = document.getElementById("fechasFuncionario");
 const fechaOferenteBox = document.getElementById("fechaOferenteBox");
-
-const buscarNombre = document.getElementById("buscarNombre");
-const buscarPuesto = document.getElementById("buscarPuesto");
-const limpiarFiltrosBtn = document.getElementById("limpiarFiltros");
-
-const funcionariosContainer = document.getElementById("funcionariosContainer");
-const oferentesContainer = document.getElementById("oferentesContainer");
+const tabsContainer = document.getElementById("tabs");
+const listaContainer = document.getElementById("listaContainer");
 
 const modal = document.getElementById("modalHistorial");
 const historialNombre = document.getElementById("historialNombre");
 const historialLista = document.getElementById("historialLista");
 const cerrarModalBtn = document.getElementById("cerrarModal");
 
-/* INIT */
-render();
-
-/* CAMBIO TIPO */
+/* TIPO */
 tipoSelect.addEventListener("change", () => {
   if (tipoSelect.value === "Oferente") {
     fechasFuncionario.style.display = "none";
@@ -35,189 +29,135 @@ tipoSelect.addEventListener("change", () => {
 formulario.addEventListener("submit", e => {
   e.preventDefault();
 
-  const nombre = document.getElementById("nombre").value.trim();
-  const puesto = document.getElementById("puesto").value.trim();
+  const nombre = nombreInput.value.trim();
+  const cedula = cedulaInput.value.trim();
+  const fechaServicio = fechaServicioInput.value;
+  const telefono = telefonoInput.value.trim();
+  const correo = correoInput.value.trim();
+  const puesto = puestoInput.value;
   const tipo = tipoSelect.value;
 
-  if (!nombre || !puesto || !tipo) return;
+  if (!nombre || !cedula) return;
 
-  let persona = personas.find(p => 
-    p.nombre === nombre && 
-    p.puesto === puesto && 
-    p.tipo === tipo
-  );
+  let persona = personas.find(p => p.cedula === cedula);
 
   if (!persona) {
     persona = {
       id: crypto.randomUUID(),
       nombre,
+      cedula,
+      fechaServicio,
+      telefono,
+      correo,
       puesto,
       tipo,
-      totalDias: 0,
-      fechaIngreso: null,
-      historial: []
+      historial: [],
+      auditoria: []
     };
     personas.push(persona);
   }
 
   if (tipo === "Funcionario") {
-    const inicio = document.getElementById("inicio").value;
-    const fin = document.getElementById("fin").value;
-    if (!inicio || !fin) return;
-
+    const inicio = inicioInput.value;
+    const fin = finInput.value;
     const dias = calcularDias(inicio, fin);
-    persona.totalDias += dias;
     persona.historial.push({ inicio, fin, dias });
   } else {
-    const fechaOferente = document.getElementById("fechaOferente").value;
-    if (!fechaOferente) return;
-
-    persona.fechaIngreso = fechaOferente;
-    persona.historial.push({ fecha: fechaOferente });
+    const fecha = fechaOferenteInput.value;
+    persona.historial.push({ fecha });
   }
+
+  persona.auditoria.push({
+    usuario: usuarioActual,
+    accion: "Registro/Actualización",
+    fecha: new Date().toLocaleString()
+  });
 
   guardar();
   formulario.reset();
 });
 
-/* FILTROS */
-buscarNombre.addEventListener("input", render);
-buscarPuesto.addEventListener("input", render);
+/* PESTAÑAS */
+function generarTabs() {
+  const puestos = [...new Set(personas.map(p => p.puesto))];
+  tabsContainer.innerHTML = "";
 
-limpiarFiltrosBtn.addEventListener("click", () => {
-  buscarNombre.value = "";
-  buscarPuesto.value = "";
-  render();
-});
+  puestos.forEach(puesto => {
+    const btn = document.createElement("div");
+    btn.className = "tab-btn";
+    btn.textContent = puesto;
+    btn.onclick = () => {
+      puestoActivo = puesto;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    };
+    tabsContainer.appendChild(btn);
+  });
+}
 
 /* RENDER */
 function render() {
-  mostrarFuncionarios();
-  mostrarOferentes();
-}
+  generarTabs();
+  listaContainer.innerHTML = "";
 
-/* FUNCIONARIOS */
-function mostrarFuncionarios() {
-  funcionariosContainer.innerHTML = "";
+  if (!puestoActivo) return;
 
-  const nombreFiltro = buscarNombre.value.toLowerCase();
-  const puestoFiltro = buscarPuesto.value.toLowerCase();
+  const lista = personas.filter(p => p.puesto === puestoActivo);
 
-  const funcionarios = personas
-    .filter(p => p.tipo === "Funcionario")
-    .filter(p =>
-      p.nombre.toLowerCase().includes(nombreFiltro) &&
-      p.puesto.toLowerCase().includes(puestoFiltro)
-    );
-
-  const porPuesto = agruparPor(funcionarios, "puesto");
-
-  Object.keys(porPuesto).forEach(puesto => {
-    const lista = porPuesto[puesto].sort((a, b) => b.totalDias - a.totalDias);
-
-    const card = document.createElement("div");
-    card.className = "puesto-card";
-
-    card.innerHTML = `
-      <div class="puesto-title">📌 ${puesto}</div>
-      <table>
-        <thead>
+  listaContainer.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Tipo</th>
+          <th>Historial</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${lista.map(p => `
           <tr>
-            <th>#</th>
-            <th>Nombre</th>
-            <th>Total días</th>
-            <th>Historial</th>
+            <td>${p.nombre}</td>
+            <td>${p.cedula}</td>
+            <td>${p.tipo}</td>
+            <td><button onclick="verHistorial('${p.id}')">Ver</button></td>
+            <td>
+              <button onclick="eliminarPersona('${p.id}')">Eliminar</button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          ${lista.map((p, i) => `
-            <tr>
-              <td>${i + 1}</td>
-              <td>${p.nombre}</td>
-              <td><strong>${p.totalDias}</strong></td>
-              <td><span class="action-link" onclick="verHistorial('${p.id}')">Ver</span></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-
-    funcionariosContainer.appendChild(card);
-  });
-}
-
-/* OFERENTES */
-function mostrarOferentes() {
-  oferentesContainer.innerHTML = "";
-
-  const nombreFiltro = buscarNombre.value.toLowerCase();
-  const puestoFiltro = buscarPuesto.value.toLowerCase();
-
-  const oferentes = personas
-    .filter(p => p.tipo === "Oferente")
-    .filter(p =>
-      p.nombre.toLowerCase().includes(nombreFiltro) &&
-      p.puesto.toLowerCase().includes(puestoFiltro)
-    );
-
-  const porPuesto = agruparPor(oferentes, "puesto");
-
-  Object.keys(porPuesto).forEach(puesto => {
-    const lista = porPuesto[puesto];
-
-    const card = document.createElement("div");
-    card.className = "puesto-card";
-
-    card.innerHTML = `
-      <div class="puesto-title">📌 ${puesto}</div>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nombre</th>
-            <th>Antigüedad</th>
-            <th>Historial</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${lista.map((p, i) => `
-            <tr>
-              <td>${i + 1}</td>
-              <td>${p.nombre}</td>
-              <td>${diasDesde(p.fechaIngreso)}</td>
-              <td><span class="action-link" onclick="verHistorial('${p.id}')">Ver</span></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-
-    oferentesContainer.appendChild(card);
-  });
+        `).join("")}
+      </tbody>
+    </table>
+  `;
 }
 
 /* HISTORIAL */
 function verHistorial(id) {
   const persona = personas.find(p => p.id === id);
-  if (!persona) return;
-
-  historialNombre.textContent = `Historial — ${persona.nombre} (${persona.puesto})`;
+  historialNombre.textContent = persona.nombre;
   historialLista.innerHTML = "";
 
   persona.historial.forEach(h => {
     if (persona.tipo === "Funcionario") {
       historialLista.innerHTML += `<li>${h.inicio} → ${h.fin} (${h.dias} días)</li>`;
     } else {
-      historialLista.innerHTML += `<li>Incluido: ${h.fecha}</li>`;
+      historialLista.innerHTML += `<li>Oferente desde ${h.fecha}</li>`;
     }
   });
 
   modal.classList.add("active");
 }
 
-cerrarModalBtn.onclick = () => {
-  modal.classList.remove("active");
-};
+cerrarModalBtn.onclick = () => modal.classList.remove("active");
+
+/* ELIMINAR */
+function eliminarPersona(id) {
+  if (!confirm("¿Eliminar registro?")) return;
+  personas = personas.filter(p => p.id !== id);
+  guardar();
+}
 
 /* STORAGE */
 function guardar() {
@@ -232,19 +172,6 @@ function calcularDias(inicio, fin) {
   return Math.floor((d2 - d1) / 86400000) + 1;
 }
 
-function diasDesde(fecha) {
-  if (!fecha) return 0;
-  const f = new Date(fecha);
-  const hoy = new Date();
-  return Math.floor((hoy - f) / 86400000);
-}
-
-function agruparPor(arr, clave) {
-  return arr.reduce((acc, obj) => {
-    acc[obj[clave]] = acc[obj[clave]] || [];
-    acc[obj[clave]].push(obj);
-    return acc;
-  }, {});
-}
+render();
 
 
