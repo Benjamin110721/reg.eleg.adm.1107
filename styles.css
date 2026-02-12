@@ -4,10 +4,6 @@ body {
   padding: 20px;
 }
 
-h1 {
-  margin-bottom: 15px;
-}
-
 .card {
   background: white;
   padding: 15px;
@@ -39,16 +35,23 @@ button:hover {
   background: #1d4ed8;
 }
 
-.puesto-card {
-  background: #fafafa;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
 }
 
-.puesto-title {
-  font-weight: bold;
-  margin-bottom: 6px;
+.tab-btn {
+  padding: 6px 10px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: white;
 }
 
 table {
@@ -61,18 +64,6 @@ th, td {
   padding: 6px;
 }
 
-th {
-  background: #f0f0f0;
-}
-
-.action-link {
-  color: #2563eb;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* MODAL CORREGIDO */
-
 .modal {
   position: fixed;
   top: 0;
@@ -83,7 +74,6 @@ th {
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
 .modal.active {
@@ -94,7 +84,6 @@ th {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  min-width: 300px;
 }
 
 
